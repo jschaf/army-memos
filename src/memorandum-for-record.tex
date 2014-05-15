@@ -1,13 +1,99 @@
+% Warn when deprecated LaTeX commands are used
+\RequirePackage[l2tabu, orthodox]{nag}
+
 \documentclass{article}
+
+% Make nice clickable urls
+\usepackage{hyperref}
+
+% Include eps files
+\usepackage{graphicx}
+
+% Set margins easily
+\usepackage[margin=1in]{geometry}
+
+% Use expanded computer modern that has bold small caps
+\usepackage[T1]{fontenc}
+
+\usepackage{tikz}
+
+\newcommand{\daletterhead}[1]{ %
+  \fontsize{10pt}{12pt}\selectfont %
+  \textbf{\textsc{#1}}}
+
+\newcommand{\letterhead}[1]{ %
+  \fontsize{8pt}{9.6pt}\selectfont %
+  \textbf{\textsc{#1}}}
+
+% Superscripts, 1st, 2nd, etc...
+\newcommand{\st}{\textsuperscript{st}}
+\newcommand{\nd}{\textsuperscript{nd}}
+\newcommand{\rd}{\textsuperscript{rd}}
+\newcommand{\thh}{\textsuperscript{th}}
 
 \begin{document}
 
-Unit
-Address
+% Grid lines across whole page
+\begin{tikzpicture}[remember picture, overlay]
+  \node[anchor=south west,inner sep=0pt] at (current page.south west)
+  {\tikz \draw[line width=0.2pt,color=gray!20,step=0.125in] (0,0) grid ++(8.5in,11in);};
+  \node[anchor=south west,inner sep=0pt] at (current page.south west)
+  {\tikz \draw[line width=0.3pt,color=gray!30,step=0.25in] (0,0) grid ++(8.5in,11in);};
+  \node[anchor=south west,inner sep=0pt] at (current page.south west)
+  {\tikz \draw[line width=0.4pt,color=gray!40,step=1in] (0,0) grid ++(8.5in,11in);};
+\end{tikzpicture}%
+
+% Official DOD seals: http://www.defense.gov/multimedia/web_graphics/
+% You can convert eps to pdf with the 'epstopdf' tool available in
+% tex-live.  Example shell commands:
+%
+% tlmgr install epstopdf
+% epstopdf old_file.eps
+%
+% Position DOD seal absolutely, AR 25-40, Appendix G-3. Letterhead and
+% memorandum stationery.  1/2in from the top edge of the page and 1/2in
+% from the left edge of the page
+%
+% Regarding other logos, AR 25-30, 7-7.a states, "Do not print any
+% seals, emblems, decorative devices, distinguishing insignia,
+% slogans, office symbols, or mottos on letterhead or memorandum
+% stationery except those approved or directed by HQDA"
+\begin{tikzpicture}[remember picture, overlay]
+  \node[anchor=north west,inner sep=0pt,xshift=0.5in, yshift=-0.5in] at (current page.north west) { %
+    \includegraphics[width=1in]{images/dod_seal_black}%
+  };%
+\end{tikzpicture}%
+
+% Positioning the letterhead.
+%
+% AR 25-40, Appendix G-3, figure G-1 (text on the side of the figure):
+%
+% "Heading is centered on the page 5/8 inch from the top trim. All
+% type is Helvetica bold. 'Department of the Army' is 10pt, all other
+% type is 8 point except 'reply to', 'attention of', which is 6
+% point. (Use of the phrase 'reply to, attention of' is optional.)
+% The DOD seal is 1 inch in diameter"
+%
+% AR 25-30, 7-7.c covers the format of the letterhead: "Include the
+% complete street address and ZIP+4 Code."  But then it says refer to
+% AR 25-40, figure G-1 and G-2.
+\begin{tikzpicture}[remember picture, overlay]
+  \node[align=center,anchor=north,inner sep=0pt,yshift=-0.625in] at (current page.north) { %
+    \daletterhead{Department of the Army} \\
+    \letterhead{Charlie Company}\\
+    \letterhead{1\st Battalion, 505\thh Parachute Infantry Regiment} \\
+    \letterhead{3\rd Brigade Combat Team, 82\nd Airborne Division} \\
+    \letterhead{Fort Bragg, NC 28310-5100}
+  };%
+\end{tikzpicture}%
 
 
-MEMORANDUM FOR RECORD
+ MEMORANDUM FOR RECORD
 
 Subject: Titlecased Subject line
 
 \end{document}
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:
