@@ -4,7 +4,7 @@
 \documentclass[12pt,letterpaper]{article}
 
 % Make nice clickable urls
-\usepackage{hyperref}
+\usepackage[pdftex, pdfusetitle,colorlinks=false,pdfborder={0 0 0}]{hyperref}%
 
 % Include eps files
 \usepackage{graphicx}
@@ -31,7 +31,12 @@
 \usepackage[english]{babel}
 \usepackage{blindtext}
 
+% Helvetica for the letterhead.  AR 25-50 says use arial, AR 25-40
+% says helvetica.
 \usepackage[scaled]{helvet}
+
+% Times for the body.  Everyone expects Times for the body copy.
+% However, AR 25-50 says to use Arial.
 \usepackage{times}
 
 % Department of the Army command
@@ -58,7 +63,6 @@
   \parbox{.5\textwidth}{#1}%
 }
 
-
 % Setup list style
 % TODO: Spacing
 \renewcommand{\theenumi}{\arabic{enumi}}
@@ -73,13 +77,35 @@
 \renewcommand{\theenumiv}{\alph{enumiv}}
 \renewcommand{\labelenumiv}{(\theenumiv)}
 
-% TODO: page number
-% TODO: headers
+\usepackage{fancyhdr}
+% No line in header
+\renewcommand{\headrulewidth}{0pt}
+\pagestyle{fancy}
+% Nothing on the firstpage.  To use, place the following somewhere on
+% the first page
+%
+% \thispagestyle{firststyle}
+\fancypagestyle{firststyle} {\fancyhf{} \fancyfoot{}}
+
+\lhead{\scriptsize\OfficeSymbol\\ \footnotesize \textsc{subject}: \Subject}
+\fancyfoot[C]{\thepage}
 % TODO: signature blocks
+
+\newcommand{\Author}{Joe Schafer}
+\newcommand{\Subject}{Titlecased Subject Line}
+\newcommand{\OfficeSymbol}{AFVC-CA-C}
+\newcommand{\Date}{22 March 2014}
+\newcommand{\Keywords}{my first keyword, my first keyword, more keywords.}
+
+\hypersetup{%
+pdftitle={\Subject},%
+pdfauthor={\Author},%
+pdfkeywords={\Keywords},%
+}%
 \begin{document}
 
 
-% Grid lines across whole page
+% % Grid lines across whole page
 % \begin{tikzpicture}[remember picture, overlay]
 %   \node[anchor=south west,inner sep=0pt] at (current page.south west)
 %   {\tikz \draw[line width=0.2pt,color=gray!10,step=0.125in] (0,0) grid ++(8.5in,11in);};
@@ -141,7 +167,7 @@
 \vspace{15pt}
 
 % Scale the office symbol down a bit so it's not the focus point
-\noindent\textbox{\scalefont{.9}AFVC-CA-C\hfill} \textbox{\hfill 22 March 2014}
+\noindent\textbox{\scalefont{.9}\OfficeSymbol\hfill} \textbox{\hfill\Date}
 
 \vspace{24pt}
 
@@ -149,9 +175,11 @@
 
 \vspace{12pt}
 
-\subject{Titlecased Subject line}
+\subject{\Subject}
 
 \vspace{12pt}
+
+\thispagestyle{firststyle}
 
 % AR 25-50 2-3.(2).c - Margins: "Do not right justify margins."
 \raggedright
