@@ -1,7 +1,7 @@
 % Warn when deprecated LaTeX commands are used
 \RequirePackage[l2tabu, orthodox]{nag}
 
-\documentclass{article}
+\documentclass[12pt,letterpaper]{article}
 
 % Make nice clickable urls
 \usepackage{hyperref}
@@ -12,18 +12,38 @@
 % Set margins easily
 \usepackage[margin=1in]{geometry}
 
+\usepackage{setspace}
+
 % Use expanded computer modern that has bold small caps
 \usepackage[T1]{fontenc}
 
 \usepackage{tikz}
 
+\usepackage{microtype}
+
+% more control over enumerate
+\usepackage{enumitem}
+
+% arbitrary fontscaling with \scalefont
+\usepackage{scalefnt}
+
+% Generate dummy text
+\usepackage[english]{babel}
+\usepackage{blindtext}
+
+\usepackage[scaled]{helvet}
+\usepackage{times}
+
+% Department of the Army command
 \newcommand{\daletterhead}[1]{ %
-  \fontsize{10pt}{12pt}\selectfont %
-  \textbf{\textsc{#1}}}
+  \fontsize{10pt}{10pt}\selectfont %
+  \textbf{\textsc{#1}}\\%
+}
 
 \newcommand{\letterhead}[1]{ %
-  \fontsize{8pt}{9.6pt}\selectfont %
-  \textbf{\textsc{#1}}}
+  \fontsize{8pt}{5pt}\selectfont %
+  \textbf{\textsc{#1}}\\%
+}
 
 % Superscripts, 1st, 2nd, etc...
 \newcommand{\st}{\textsuperscript{st}}
@@ -31,17 +51,43 @@
 \newcommand{\rd}{\textsuperscript{rd}}
 \newcommand{\thh}{\textsuperscript{th}}
 
+\newcommand{\memotype}[1]{\noindent\textsc{#1}}
+\newcommand{\subject}[1]{\noindent\textsc{Subject}: #1}
+
+\newcommand\textbox[1]{%
+  \parbox{.5\textwidth}{#1}%
+}
+
+
+% Setup list style
+% TODO: Spacing
+\renewcommand{\theenumi}{\arabic{enumi}}
+\renewcommand{\labelenumi}{\theenumi.}
+
+\renewcommand{\theenumii}{\alph{enumii}}
+\renewcommand{\labelenumii}{\theenumii.}
+
+\renewcommand{\theenumiii}{\arabic{enumiii}}
+\renewcommand{\labelenumiii}{(\theenumiii)}
+
+\renewcommand{\theenumiv}{\alph{enumiv}}
+\renewcommand{\labelenumiv}{(\theenumiv)}
+
+% TODO: page number
+% TODO: headers
+% TODO: signature blocks
 \begin{document}
 
+
 % Grid lines across whole page
-\begin{tikzpicture}[remember picture, overlay]
-  \node[anchor=south west,inner sep=0pt] at (current page.south west)
-  {\tikz \draw[line width=0.2pt,color=gray!20,step=0.125in] (0,0) grid ++(8.5in,11in);};
-  \node[anchor=south west,inner sep=0pt] at (current page.south west)
-  {\tikz \draw[line width=0.3pt,color=gray!30,step=0.25in] (0,0) grid ++(8.5in,11in);};
-  \node[anchor=south west,inner sep=0pt] at (current page.south west)
-  {\tikz \draw[line width=0.4pt,color=gray!40,step=1in] (0,0) grid ++(8.5in,11in);};
-\end{tikzpicture}%
+% \begin{tikzpicture}[remember picture, overlay]
+%   \node[anchor=south west,inner sep=0pt] at (current page.south west)
+%   {\tikz \draw[line width=0.2pt,color=gray!10,step=0.125in] (0,0) grid ++(8.5in,11in);};
+%   \node[anchor=south west,inner sep=0pt] at (current page.south west)
+%   {\tikz \draw[line width=0.3pt,color=gray!20,step=0.25in] (0,0) grid ++(8.5in,11in);};
+%   \node[anchor=south west,inner sep=0pt] at (current page.south west)
+%   {\tikz \draw[line width=0.4pt,color=gray!30,step=1in] (0,0) grid ++(8.5in,11in);};
+% \end{tikzpicture}%
 
 % Official DOD seals: http://www.defense.gov/multimedia/web_graphics/
 % You can convert eps to pdf with the 'epstopdf' tool available in
@@ -78,20 +124,68 @@
 % complete street address and ZIP+4 Code."  But then it says refer to
 % AR 25-40, figure G-1 and G-2.
 \begin{tikzpicture}[remember picture, overlay]
-  \node[align=center,anchor=north,inner sep=0pt,yshift=-0.625in] at (current page.north) { %
-    \daletterhead{Department of the Army} \\
-    \letterhead{Charlie Company}\\
-    \letterhead{1\st Battalion, 505\thh Parachute Infantry Regiment} \\
-    \letterhead{3\rd Brigade Combat Team, 82\nd Airborne Division} \\
+  % Use helvetica
+  \setstretch{0.7}
+  \fontfamily\sfdefault\selectfont
+  \node[align=center,anchor=north,inner sep=0pt,yshift=-0.625in] at (current page.north) {
+    \daletterhead{Department of the Army}
+    \letterhead{Charlie Company}
+    \letterhead{1\st Battalion, 505\thh Parachute Infantry Regiment}
+    \letterhead{3\rd Brigade Combat Team, 82\nd Airborne Division}
     \letterhead{Fort Bragg, NC 28310-5100}
   };%
 \end{tikzpicture}%
 
+% TODO: figure out where the page starts, we should be 12pts below the
+% bottom of the DOD seal.
+\vspace{15pt}
 
- MEMORANDUM FOR RECORD
+% Scale the office symbol down a bit so it's not the focus point
+\noindent\textbox{\scalefont{.9}AFVC-CA-C\hfill} \textbox{\hfill 22 March 2014}
 
-Subject: Titlecased Subject line
+\vspace{24pt}
 
+\memotype{Memorandum For Record}
+
+\vspace{12pt}
+
+\subject{Titlecased Subject line}
+
+\vspace{12pt}
+
+% AR 25-50 2-3.(2).c - Margins: "Do not right justify margins."
+\raggedright
+
+% Useful information for customizing lists
+% http://tex.stackexchange.com/questions/56809/multiline-item-indent
+\begin{enumerate}[labelwidth=12pt,labelsep=4pt,leftmargin=0pt,itemindent=16pt,align=left]
+  \item \blindtext
+
+    \begin{enumerate}[labelwidth=12pt,labelsep=4pt,leftmargin=0pt,itemindent=0.5in,align=left]
+      \item \blindtext
+
+        \begin{enumerate}[leftmargin=0pt,itemindent=1in,align=left]
+            \item \blindtext
+
+              % AR 25-50, Figure 2-1 specifices that the fourth item
+              % is indented the same amount as the third item.  No
+              % additional list levels are allowed.
+              \begin{enumerate}[leftmargin=0pt,itemindent=1in,align=left]
+
+                  \item \blindtext
+
+                  \item \blindtext
+              \end{enumerate}
+
+            \item \blindtext
+        \end{enumerate}
+      \item \blindtext
+    \end{enumerate}
+
+  \item \blindtext
+  \item \blindtext
+
+\end{enumerate}
 \end{document}
 %%% Local Variables:
 %%% mode: latex
