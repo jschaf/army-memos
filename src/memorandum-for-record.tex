@@ -63,6 +63,18 @@
   \parbox{.5\textwidth}{#1}%
 }
 
+% Acronyms - AR 25-52: Authorized Abbreviations, Brevity Codes, and
+% Acronyms
+%
+% Other locations for acronyms: JP1-02: DOD Dictionary of Military and
+% Associated Terms, FM 1-02: Operational Terms and Graphics
+\usepackage{glossaries}
+\usepackage{relsize}
+\setacronymstyle{long-sm-short}
+\newacronym{flipl}{FLIPL}{Financial Liability Investigation of Property Loss}
+\newacronym{dod}{DOD}{Department of Defense}
+\newacronym{ied}{IED}{improvised explosive device}
+
 % Setup list style
 % TODO: Spacing
 \renewcommand{\theenumi}{\arabic{enumi}}
@@ -187,7 +199,7 @@ pdfkeywords={\Keywords},%
 % Useful information for customizing lists
 % http://tex.stackexchange.com/questions/56809/multiline-item-indent
 \begin{enumerate}[labelwidth=12pt,labelsep=4pt,leftmargin=0pt,itemindent=16pt,align=left]
-  \item \blindtext
+  \item I work for \gls{dod}.  Ryan works for \gls{dod}.  I worked on \gls{flipl}.  Kat worked on \glspl{flipl}
 
     \begin{enumerate}[labelwidth=12pt,labelsep=4pt,leftmargin=0pt,itemindent=0.5in,align=left]
       \item \blindtext
