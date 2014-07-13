@@ -1,31 +1,13 @@
 \documentclass[$if(fontsize)$$fontsize$,$endif$$if(lang)$$lang$,$endif$$if(papersize)$$papersize$,$endif$$for(classoption)$$classoption$$sep$,$endfor$]{$documentclass$}
-$if(fontfamily)$
-\usepackage{$fontfamily$}
-$else$
-\usepackage{lmodern}
-$endif$
-$if(linestretch)$
+
 \usepackage{setspace}
-\setstretch{$linestretch$}
-$endif$
-\usepackage{amssymb,amsmath}
+
 \usepackage{ifxetex,ifluatex}
 \usepackage{fixltx2e} % provides \textsubscript
-\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
-  \usepackage[T1]{fontenc}
-  \usepackage[utf8]{inputenc}
-$if(euro)$
-  \usepackage{eurosym}
-$endif$
-\else % if luatex or xelatex
-  \ifxetex
-    \usepackage{mathspec}
-    \usepackage{xltxtra,xunicode}
-  \else
-    \usepackage{fontspec}
-  \fi
-  \defaultfontfeatures{Mapping=tex-text,Scale=MatchLowercase}
-  \newcommand{\euro}{€}
+\usepackage[utf8]{inputenc}
+\usepackage{fontspec}
+\defaultfontfeatures{Mapping=tex-text,Scale=MatchLowercase}
+
 $if(mainfont)$
     \setmainfont{$mainfont$}
 $endif$
@@ -38,40 +20,13 @@ $endif$
 $if(mathfont)$
     \setmathfont(Digits,Latin,Greek){$mathfont$}
 $endif$
-\fi
-% use upquote if available, for straight quotes in verbatim environments
-\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
-% use microtype if available
-\IfFileExists{microtype.sty}{\usepackage{microtype}}{}
-$if(geometry)$
-\usepackage[$for(geometry)$$geometry$$sep$,$endfor$]{geometry}
-$endif$
-$if(natbib)$
-\usepackage{natbib}
-\bibliographystyle{$if(biblio-style)$$biblio-style$$else$plainnat$endif$}
-$endif$
-$if(biblatex)$
-\usepackage{biblatex}
-$if(biblio-files)$
-\bibliography{$biblio-files$}
-$endif$
-$endif$
-$if(listings)$
-\usepackage{listings}
-$endif$
-$if(lhs)$
-\lstnewenvironment{code}{\lstset{language=Haskell,basicstyle=\small\ttfamily}}{}
-$endif$
-$if(highlighting-macros)$
-$highlighting-macros$
-$endif$
-$if(verbatim-in-note)$
-\usepackage{fancyvrb}
-$endif$
-$if(tables)$
-\usepackage{longtable,booktabs}
-$endif$
-$if(graphics)$
+
+\usepackage{microtype}
+
+\usepackage[showframe,margin=1in]{geometry}
+
+\usepackage{longtable,booktabs,dcolumn}
+
 \usepackage{graphicx}
 \makeatletter
 \def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
@@ -81,14 +36,8 @@ $if(graphics)$
 % margins by default, and it is still possible to overwrite the defaults
 % using explicit options in \includegraphics[width, height, ...]{}
 \setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
-$endif$
-\ifxetex
-  \usepackage[setpagesize=false, % page size defined by xetex
-              unicode=false, % unicode breaks when used with xetex
-              xetex]{hyperref}
-\else
-  \usepackage[unicode=true]{hyperref}
-\fi
+
+\usepackage[unicode=true]{hyperref}
 \hypersetup{breaklinks=true,
             bookmarks=true,
             pdfauthor={$author-meta$},
@@ -144,8 +93,162 @@ $for(header-includes)$
 $header-includes$
 $endfor$
 
+% ----------------
+% Custom additions
+
+\usepackage{calc}
+\makeatletter
+\def\@maketitle{%
+  \OfficeSymbol \hfill \@date \vskip 12pt %
+  \memotype{Memorandum For Record} \vskip 12pt %
+  \memotype{Subject}: \Subject%
+  }
+\makeatother
+
+% Grid lines across whole page
+\usepackage{tikz}
+\newcommand{\Gridlines}{
+  \begin{tikzpicture}[remember picture, overlay]
+    \node[anchor=south west,inner sep=0pt] at (current page.south west)
+    {\tikz \draw[line width=0.2pt,color=gray!10,step=0.125in] (0,0) grid ++(8.5in,11in);};
+    \node[anchor=south west,inner sep=0pt] at (current page.south west)
+    {\tikz \draw[line width=0.3pt,color=gray!20,step=0.25in] (0,0) grid ++(8.5in,11in);};
+    \node[anchor=south west,inner sep=0pt] at (current page.south west)
+    {\tikz \draw[line width=0.4pt,color=gray!30,step=1in] (0,0) grid ++(8.5in,11in);};
+  \end{tikzpicture}
+}
+% arbitrary fontscaling with \scalefont
+\usepackage{scalefnt}
+
+
+% Department of the Army command
+\newcommand{\daletterhead}[1]{ %
+  \fontsize{10pt}{10pt}\selectfont %
+  \textbf{\textsc{#1}}\\%
+}
+
+\newcommand{\letterhead}[1]{ %
+  \fontsize{8pt}{8pt}\selectfont %
+  \textbf{\textsc{#1}}%
+}
+
+\newcommand\textbox[1]{%
+  \parbox{.5\textwidth}{#1}%
+}
+
+\newcommand{\memotype}[1]{\noindent\textsc{#1}}
+
+\newcommand{\Signature}[1]{\noindent\hspace{0.5\textwidth} #1\\}
+\newcommand{\Letterhead}{ %
+  \vbox{\sffamily \daletterhead{Department of the Army}
+    $for(letterhead)$
+    \letterhead{$letterhead$}
+    $sep$\\
+    $endfor$
+    }
+}
+
+\usepackage{fancyhdr}
+% No line in header
+\renewcommand{\headrulewidth}{0pt}
+
+% first page header
+\fancypagestyle{firststyle} {
+  \fancyhf{}
+  \fancyhead[C]{\Letterhead}
+}
+
+% every other page header
+\pagestyle{fancy}
+\lhead{\scriptsize\OfficeSymbol\\ \footnotesize \textsc{Subject}: \Subject}
+\fancyfoot[C]{\thepage}
+
+% Official DOD seals: http://www.defense.gov/multimedia/web_graphics/
+% You can convert eps to pdf with the 'epstopdf' tool available in
+% tex-live.  Example shell commands:
+%
+% tlmgr install epstopdf
+% epstopdf old_file.eps
+%
+% Position DOD seal absolutely, AR 25-40, Appendix G-3. Letterhead and
+% memorandum stationery.  1/2in from the top edge of the page and 1/2in
+% from the left edge of the page
+%
+% Regarding other logos, AR 25-30, 7-7.a states, "Do not print any
+% seals, emblems, decorative devices, distinguishing insignia,
+% slogans, office symbols, or mottos on letterhead or memorandum
+% stationery except those approved or directed by HQDA"
+% \begin{tikzpicture}[remember picture, overlay]
+%   \node[anchor=north west,inner sep=0pt,xshift=0.5in, yshift=-0.5in] at (current page.north west) { %
+%     \includegraphics[width=1in]{images/dod_seal_black}%
+%   };%
+% \end{tikzpicture}%
+
+% Positioning the letterhead.
+%
+% AR 25-40, Appendix G-3, figure G-1 (text on the side of the figure):
+%
+% "Heading is centered on the page 5/8 inch from the top trim. All
+% type is Helvetica bold. 'Department of the Army' is 10pt, all other
+% type is 8 point except 'reply to', 'attention of', which is 6
+% point. (Use of the phrase 'reply to, attention of' is optional.)
+% The DOD seal is 1 inch in diameter"
+%
+% AR 25-30, 7-7.c covers the format of the letterhead: "Include the
+% complete street address and ZIP+4 Code."  But then it says refer to
+% AR 25-40, figure G-1 and G-2.
+
+\usepackage[absolute,overlay]{textpos}
+\setlength{\TPHorizModule}{.25in}
+\setlength{\TPVertModule}{.25in}
+% textblock works in multiples of TPHorizModule and TPVertModule
+\newcommand{\DODSeal}{%
+\begin{textblock}{2}(2,2)
+  \includegraphics[width=1in]{images/dod_seal_black}
+\end{textblock}
+}
+
+$if(officesymbol)$
+\newcommand{\OfficeSymbol}{{\scshape%
+$if(officesymbol)$$officesymbol$$else$Specify Office Symbol$endif$
+}}
+$else$
+\newcommand{\OfficeSymbol}{}
+$endif$
+
+\newcommand{\Subject}{$if(subject)$$subject$$else$Specify Subject$endif$}
+\usepackage{afterpage}
+\makeatletter
+%http://groups.google.com/group/comp.text.tex/msg/7e812e5d6e67fcc5
+\def\convertto#1#2{\strip@pt\dimexpr #2*65536/\number\dimexpr 1#1}
+\makeatother
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{document}
-$if(title)$
+% \setlength{\topmargin}{-.375in}
+% \afterpage{
+%   \setlength{\topmargin}{0pt}
+%   \setlength{\headsep}{12pt}
+% }
+% Suppress overfull hbox warning for the DOD Seal
+{\hfuzz=40pt \DODSeal}
+
+% \newlength{\heightofdodseal}
+% % Seal is 1inch, but it's .125in higher than the letterhead text.
+% \setlength{\heightofdodseal}{1in - .125in}
+
+\newlength{\heightofletterhead}
+% suppress underfull errors
+\settoheight{\heightofletterhead}{\hbadness=\maxdimen \Letterhead}
+
+% % Not sure how 15.48pt is derived.  I calculated it from the error messages.
+% \addtolength{\heightofletterhead}{15.48pt}
+% \setlength{\headheight}{\maxof{\heightofletterhead}{\heightofdodseal}}
+\setlength{\headheight}{\maxof{\heightofletterhead}{0pt}}
+
+\setlength{\headsep}{12pt}
+
+$if(subject)$
 \maketitle
 $endif$
 $if(abstract)$
@@ -158,6 +261,20 @@ $for(include-before)$
 $include-before$
 
 $endfor$
+
+% \afterpage{
+%   \setlength{\headheight}{2in}
+%   {\huge New Page!!!}
+%   \setlength{\marginparwidth}{2in}
+% }
+
+\Gridlines
+\thispagestyle{firststyle}
+
+
+% AR 25-50 2-3.(2).c - Margins: "Do not right justify margins."
+\raggedright
+
 $if(toc)$
 {
 \hypersetup{linkcolor=black}
@@ -165,6 +282,26 @@ $if(toc)$
 \tableofcontents
 }
 $endif$
+
+\begin{tabular}{@{}l*{2}{D{.}{.}{7}}@{}r}
+  hoffset        & \the\hoffset        & \convertto{in}{\hoffset}         & () \\
+  voffset        & \the\voffset        & \convertto{in}{\voffset}         & () \\
+  oddsidemargin  & \the\oddsidemargin  & \convertto{in}{\oddsidemargin}   & (31pt) \\
+  topmargin      & \the\topmargin      & \convertto{in}{\topmargin}       & (20pt) \\
+  headheight     & \the\headheight     & \convertto{in}{\headheight}      & (12pt) \\
+  headsep        & \the\headsep        & \convertto{in}{\headsep}         & (25pt) \\
+  textheight     & \the\textheight     & \convertto{in}{\textheight}      & (592pt) \\
+  textwidth      & \the\textwidth      & \convertto{in}{\textwidth}       & (390pt) \\
+  marginparsep   & \the\marginparsep   & \convertto{in}{\marginparsep}    & (10pt) \\
+  marginparwidth & \the\marginparwidth & \convertto{in}{\marginparwidth}  & (35pt) \\
+  footskip       & \the\footskip       & \convertto{in}{\footskip}        & (30pt) \\
+  marginparpush  & \the\marginparpush  & \convertto{in}{\marginparpush}   & (7pt) \\
+  hoffset        & \the\hoffset        & \convertto{in}{\hoffset}         & (0pt) \\
+  voffset        & \the\voffset        & \convertto{in}{\voffset}         & (0pt) \\
+  paperwidth     & \the\paperwidth     & \convertto{in}{\paperwidth}      & (597pt) \\
+  paperheight    & \the\paperheight    & \convertto{in}{\paperheight}     & (845pt) \\
+\end{tabular}
+
 $body$
 
 $if(natbib)$
@@ -188,4 +325,29 @@ $for(include-after)$
 $include-after$
 
 $endfor$
+
+\begin{tabular}{@{}l*{2}{D{.}{.}{7}}@{}}
+  hoffset        & \the\hoffset        & () \\
+  voffset        & \the\voffset        & () \\
+  oddsidemargin  & \the\oddsidemargin  & (31pt) \\
+  topmargin      & \the\topmargin      & (20pt) \\
+  headheight     & \the\headheight     & (12pt) \\
+  headsep        & \the\headsep        & (25pt) \\
+  textheight     & \the\textheight     & (592pt) \\
+  textwidth      & \the\textwidth      & (390pt) \\
+  marginparsep   & \the\marginparsep   & (10pt) \\
+  marginparwidth & \the\marginparwidth & (35pt) \\
+  footskip       & \the\footskip       & (30pt) \\
+  marginparpush  & \the\marginparpush  & (7pt) \\
+  hoffset        & \the\hoffset        & (0pt) \\
+  voffset        & \the\voffset        & (0pt) \\
+  paperwidth     & \the\paperwidth     & (597pt) \\
+  paperheight    & \the\paperheight    & (845pt) \\
+\end{tabular}
+
+\vspace{48pt}
+$for(signature)$
+\Signature{$signature$}
+$endfor$
+
 \end{document}
