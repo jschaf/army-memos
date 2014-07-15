@@ -1,15 +1,17 @@
+INPUT := senior-parachutist
 all:
 	pandoc					\
 	  --latex-engine=lualatex		\
 	  --template=template.tex		\
           --variable fontsize=12pt		\
-          --variable mainfont="TeX Gyre Termes"   \
-          --variable sansfont="Helvetica Neue"	\
           --variable linestretch=1              \
           --variable graphics                   \
 	  --no-tex-ligatures			\
 	  --smart				\
-	  -o mfr.tex				\
-          mfr.md
+	  -o $(INPUT).tex				\
+          $(INPUT).md
 
-	lualatex mfr.tex
+	# sed -i '' -e '/.def.labelenumi/d'  \
+        #           -e '/itemsep1pt/d'       \
+        #      $(INPUT).tex
+	lualatex $(INPUT).tex

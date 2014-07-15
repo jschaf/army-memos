@@ -8,22 +8,16 @@
 \usepackage{fontspec}
 \defaultfontfeatures{Mapping=tex-text,Scale=MatchLowercase}
 
-$if(mainfont)$
-    \setmainfont{$mainfont$}
-$endif$
-$if(sansfont)$
-    \setsansfont{$sansfont$}
-$endif$
-$if(monofont)$
-    \setmonofont[Mapping=tex-ansi]{$monofont$}
-$endif$
-$if(mathfont)$
-    \setmathfont(Digits,Latin,Greek){$mathfont$}
-$endif$
 
-\usepackage{microtype}
+% Times for the body.  Everyone expects Times for the body copy.
+% However, AR 25-50 says to use Arial.
+\setmainfont{TeX Gyre Termes}
 
-\usepackage[showframe,margin=1in]{geometry}
+% Helvetica for the letterhead.  AR 25-50 says use arial, AR 25-40
+% says Helvetica.
+\setsansfont{TeX Gyre Heros}
+
+\usepackage[margin=1in,headsep=12pt,headheight=2\baselineskip]{geometry}
 
 \usepackage{longtable,booktabs,dcolumn}
 
@@ -96,14 +90,33 @@ $endfor$
 % ----------------
 % Custom additions
 
+
+\newlength{\topofletterhead}
+\setlength{\topofletterhead}{.625in}
+
+\newlength{\topofdodseal}
+\setlength{\topofdodseal}{.5in}
+
+\newlength{\lengthofdodseal}
+\setlength{\lengthofdodseal}{1in}
+
+% Customize lists to meet army regulations.
+% 1st level: 1. 2. 3. flush with left margin
+% 2nd level: a. b. c. indent 0.25 in
+% 3rd level: (1) (2) (3) indent 0.5 in
+% 4th level: (a) (b) (c) indent 0.5 in, same as 3rd level
+\usepackage{enumitem}
+\setlist{wide, labelwidth=\parindent}
+\setlist[enumerate,1]{wide=0in, label=\arabic*.}
+\setlist[enumerate,2]{wide=.25in, label=\alph*.}
+\setlist[enumerate,3]{wide=.5in, label=(\arabic*)}
+\setlist[enumerate,4]{wide=.5in, label=(\alph*)}
+
+\renewenvironment{itemize}{\begin{enumerate}}{%
+    \end{enumerate}\ignorespacesafterend% as suggested above
+}
+
 \usepackage{calc}
-\makeatletter
-\def\@maketitle{%
-  \OfficeSymbol \hfill \@date \vskip 12pt %
-  \memotype{Memorandum For Record} \vskip 12pt %
-  \memotype{Subject}: \Subject%
-  }
-\makeatother
 
 % Grid lines across whole page
 \usepackage{tikz}
@@ -121,41 +134,63 @@ $endfor$
 \usepackage{scalefnt}
 
 
-% Department of the Army command
+\usepackage{fancyhdr}
+
+% textblock works in multiples of TPHorizModule and TPVertModule.  We
+% need this to absolutely postion the letterhead and DOD seal.  Trying
+% to place them by adjusting margins is fucking impossible.
+\usepackage[absolute,overlay]{textpos}
+\setlength{\TPHorizModule}{.25in}
+\setlength{\TPVertModule}{.25in}
+
+% Positioning the letterhead.
+%
+% AR 25-40, Appendix G-3, figure G-1 (text on the side of the figure):
+%
+% "Heading is centered on the page 5/8 inch from the top trim. All
+% type is Helvetica bold. 'Department of the Army' is 10pt, all other
+% type is 8 point except 'reply to', 'attention of', which is 6
+% point. (Use of the phrase 'reply to, attention of' is optional.)
+% The DOD seal is 1 inch in diameter"
+%
+% AR 25-30, 7-7.c covers the format of the letterhead: "Include the
+% complete street address and ZIP+4 Code."  But then it says refer to
+% AR 25-40, figure G-1 and G-2.
 \newcommand{\daletterhead}[1]{ %
-  \fontsize{10pt}{10pt}\selectfont %
+  \fontsize{11pt}{11pt}\selectfont %
   \textbf{\textsc{#1}}\\%
 }
 
 \newcommand{\letterhead}[1]{ %
-  \fontsize{8pt}{8pt}\selectfont %
+  \fontsize{9pt}{9pt}\selectfont %
   \textbf{\textsc{#1}}%
 }
 
-\newcommand\textbox[1]{%
-  \parbox{.5\textwidth}{#1}%
+\newcommand{\Letterhead}{
+  \vbox{
+    \sffamily
+    \daletterhead{Department of the Army}
+    $for(letterhead)$
+    \letterhead{$letterhead$}$sep$\\
+    $endfor$
+  }
 }
 
 \newcommand{\memotype}[1]{\noindent\textsc{#1}}
 
 \newcommand{\Signature}[1]{\noindent\hspace{0.5\textwidth} #1\\}
-\newcommand{\Letterhead}{ %
-  \vbox{\sffamily \daletterhead{Department of the Army}
-    $for(letterhead)$
-    \letterhead{$letterhead$}
-    $sep$\\
-    $endfor$
-    }
-}
 
-\usepackage{fancyhdr}
 % No line in header
 \renewcommand{\headrulewidth}{0pt}
 
 % first page header
 \fancypagestyle{firststyle} {
   \fancyhf{}
-  \fancyhead[C]{\Letterhead}
+  \fancyhead[C]{ %
+    \begin{textblock}{12}(11,2.5)
+      \Letterhead
+    \end{textblock}
+  }
 }
 
 % every other page header
@@ -178,83 +213,66 @@ $endfor$
 % seals, emblems, decorative devices, distinguishing insignia,
 % slogans, office symbols, or mottos on letterhead or memorandum
 % stationery except those approved or directed by HQDA"
-% \begin{tikzpicture}[remember picture, overlay]
-%   \node[anchor=north west,inner sep=0pt,xshift=0.5in, yshift=-0.5in] at (current page.north west) { %
-%     \includegraphics[width=1in]{images/dod_seal_black}%
-%   };%
-% \end{tikzpicture}%
-
-% Positioning the letterhead.
-%
-% AR 25-40, Appendix G-3, figure G-1 (text on the side of the figure):
-%
-% "Heading is centered on the page 5/8 inch from the top trim. All
-% type is Helvetica bold. 'Department of the Army' is 10pt, all other
-% type is 8 point except 'reply to', 'attention of', which is 6
-% point. (Use of the phrase 'reply to, attention of' is optional.)
-% The DOD seal is 1 inch in diameter"
-%
-% AR 25-30, 7-7.c covers the format of the letterhead: "Include the
-% complete street address and ZIP+4 Code."  But then it says refer to
-% AR 25-40, figure G-1 and G-2.
-
-\usepackage[absolute,overlay]{textpos}
-\setlength{\TPHorizModule}{.25in}
-\setlength{\TPVertModule}{.25in}
-% textblock works in multiples of TPHorizModule and TPVertModule
 \newcommand{\DODSeal}{%
 \begin{textblock}{2}(2,2)
-  \includegraphics[width=1in]{images/dod_seal_black}
+  \includegraphics[width=\lengthofdodseal]{images/dod_seal_black}
 \end{textblock}
 }
 
 $if(officesymbol)$
-\newcommand{\OfficeSymbol}{{\scshape%
-$if(officesymbol)$$officesymbol$$else$Specify Office Symbol$endif$
-}}
+\newcommand{\OfficeSymbol}{{\scshape $officesymbol$}}
 $else$
 \newcommand{\OfficeSymbol}{}
 $endif$
 
 \newcommand{\Subject}{$if(subject)$$subject$$else$Specify Subject$endif$}
-\usepackage{afterpage}
+
+% The document title
 \makeatletter
-%http://groups.google.com/group/comp.text.tex/msg/7e812e5d6e67fcc5
-\def\convertto#1#2{\strip@pt\dimexpr #2*65536/\number\dimexpr 1#1}
+\def\@maketitle{%
+  {\small\OfficeSymbol} \hfill \@date \vskip 24pt %
+  \memotype{Memorandum For Record} \vskip 12pt %
+  \memotype{Subject}: \Subject \vskip 24pt %
+  }
 \makeatother
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{document}
-% \setlength{\topmargin}{-.375in}
-% \afterpage{
-%   \setlength{\topmargin}{0pt}
-%   \setlength{\headsep}{12pt}
-% }
 % Suppress overfull hbox warning for the DOD Seal
 {\hfuzz=40pt \DODSeal}
 
-% \newlength{\heightofdodseal}
-% % Seal is 1inch, but it's .125in higher than the letterhead text.
-% \setlength{\heightofdodseal}{1in - .125in}
+% This would be much cleaner with a working \newgeometry, but that
+% doesn't work unless you insert on the target page.  I tried
+% afterpage, but that has issues with global scope.
+%
+% Since adjusting margins on separate pages is impossible, we fake the
+% header height for the first page.  We need to see if the letterhead
+% or the DOD seal is larger and \vspace that distance before inserting
+% the title.
 
-\newlength{\heightofletterhead}
-% suppress underfull errors
-\settoheight{\heightofletterhead}{\hbadness=\maxdimen \Letterhead}
+% The length from the top of the page to the bottom of the DOD seal.
+\newlength{\bottomofdodseal}
+\setlength{\bottomofdodseal}{\lengthofdodseal + \topofdodseal}
 
-% % Not sure how 15.48pt is derived.  I calculated it from the error messages.
-% \addtolength{\heightofletterhead}{15.48pt}
-% \setlength{\headheight}{\maxof{\heightofletterhead}{\heightofdodseal}}
-\setlength{\headheight}{\maxof{\heightofletterhead}{0pt}}
+\newlength{\bottomofletterhead}
+% suppress underfull errors from this fake insert of the letterhead
+\settoheight{\bottomofletterhead}{\hbadness=\maxdimen \Letterhead}
+\setlength{\bottomofletterhead}{\bottomofletterhead + \topofletterhead}
+\setlength{\bottomofletterhead}{\maxof{\bottomofletterhead}{\bottomofdodseal}}
 
-\setlength{\headsep}{12pt}
+\newlength{\fakeheadersep}
+\setlength{\fakeheadersep}{\bottomofletterhead - 1in}
+
+\vspace*{\fakeheadersep}
+
 
 $if(subject)$
-\maketitle
-$endif$
-$if(abstract)$
-\begin{abstract}
-$abstract$
-\end{abstract}
+{
+  % Don't let maketitle force a new page.
+  \let\newpage\relax\maketitle
+  \maketitle
+}
 $endif$
 
 $for(include-before)$
@@ -262,88 +280,17 @@ $include-before$
 
 $endfor$
 
-% \afterpage{
-%   \setlength{\headheight}{2in}
-%   {\huge New Page!!!}
-%   \setlength{\marginparwidth}{2in}
-% }
-
-\Gridlines
 \thispagestyle{firststyle}
-
 
 % AR 25-50 2-3.(2).c - Margins: "Do not right justify margins."
 \raggedright
 
-$if(toc)$
-{
-\hypersetup{linkcolor=black}
-\setcounter{tocdepth}{$toc-depth$}
-\tableofcontents
-}
-$endif$
-
-\begin{tabular}{@{}l*{2}{D{.}{.}{7}}@{}r}
-  hoffset        & \the\hoffset        & \convertto{in}{\hoffset}         & () \\
-  voffset        & \the\voffset        & \convertto{in}{\voffset}         & () \\
-  oddsidemargin  & \the\oddsidemargin  & \convertto{in}{\oddsidemargin}   & (31pt) \\
-  topmargin      & \the\topmargin      & \convertto{in}{\topmargin}       & (20pt) \\
-  headheight     & \the\headheight     & \convertto{in}{\headheight}      & (12pt) \\
-  headsep        & \the\headsep        & \convertto{in}{\headsep}         & (25pt) \\
-  textheight     & \the\textheight     & \convertto{in}{\textheight}      & (592pt) \\
-  textwidth      & \the\textwidth      & \convertto{in}{\textwidth}       & (390pt) \\
-  marginparsep   & \the\marginparsep   & \convertto{in}{\marginparsep}    & (10pt) \\
-  marginparwidth & \the\marginparwidth & \convertto{in}{\marginparwidth}  & (35pt) \\
-  footskip       & \the\footskip       & \convertto{in}{\footskip}        & (30pt) \\
-  marginparpush  & \the\marginparpush  & \convertto{in}{\marginparpush}   & (7pt) \\
-  hoffset        & \the\hoffset        & \convertto{in}{\hoffset}         & (0pt) \\
-  voffset        & \the\voffset        & \convertto{in}{\voffset}         & (0pt) \\
-  paperwidth     & \the\paperwidth     & \convertto{in}{\paperwidth}      & (597pt) \\
-  paperheight    & \the\paperheight    & \convertto{in}{\paperheight}     & (845pt) \\
-\end{tabular}
-
 $body$
 
-$if(natbib)$
-$if(biblio-files)$
-$if(biblio-title)$
-$if(book-class)$
-\renewcommand\bibname{$biblio-title$}
-$else$
-\renewcommand\refname{$biblio-title$}
-$endif$
-$endif$
-\bibliography{$biblio-files$}
-
-$endif$
-$endif$
-$if(biblatex)$
-\printbibliography$if(biblio-title)$[title=$biblio-title$]$endif$
-
-$endif$
 $for(include-after)$
 $include-after$
 
 $endfor$
-
-\begin{tabular}{@{}l*{2}{D{.}{.}{7}}@{}}
-  hoffset        & \the\hoffset        & () \\
-  voffset        & \the\voffset        & () \\
-  oddsidemargin  & \the\oddsidemargin  & (31pt) \\
-  topmargin      & \the\topmargin      & (20pt) \\
-  headheight     & \the\headheight     & (12pt) \\
-  headsep        & \the\headsep        & (25pt) \\
-  textheight     & \the\textheight     & (592pt) \\
-  textwidth      & \the\textwidth      & (390pt) \\
-  marginparsep   & \the\marginparsep   & (10pt) \\
-  marginparwidth & \the\marginparwidth & (35pt) \\
-  footskip       & \the\footskip       & (30pt) \\
-  marginparpush  & \the\marginparpush  & (7pt) \\
-  hoffset        & \the\hoffset        & (0pt) \\
-  voffset        & \the\voffset        & (0pt) \\
-  paperwidth     & \the\paperwidth     & (597pt) \\
-  paperheight    & \the\paperheight    & (845pt) \\
-\end{tabular}
 
 \vspace{48pt}
 $for(signature)$
