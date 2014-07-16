@@ -2,11 +2,10 @@
 
 \usepackage{setspace}
 
-\usepackage{ifxetex,ifluatex}
 \usepackage{fixltx2e}% provides \textsubscript
-\usepackage[utf8]{inputenc}
+
 \usepackage{fontspec}
-\defaultfontfeatures{Mapping=tex-text,Scale=MatchLowercase}
+\defaultfontfeatures{Ligatures=TeX,Scale=MatchLowercase}
 
 
 % Times for the body.  Everyone expects Times for the body copy.
@@ -17,7 +16,7 @@
 % says Helvetica.
 \setsansfont{TeX Gyre Heros}
 
-\usepackage[showframe,margin=1in,headsep=12pt,headheight=2\baselineskip]{geometry}
+\usepackage[margin=1in,headsep=12pt,headheight=2\baselineskip]{geometry}
 
 \usepackage{longtable,booktabs,dcolumn}
 
@@ -117,7 +116,7 @@ $endfor$
 % 3rd level: (1) (2) (3) indent 0.5 in
 % 4th level: (a) (b) (c) indent 0.5 in, same as 3rd level
 \usepackage{enumitem}
-\setlist{wide, labelwidth=\parindent}
+\setlist[enumerate]{wide, labelwidth=\parindent}
 \setlist[enumerate,1]{wide=0in, label=\arabic*.}
 \setlist[enumerate,2]{wide=.25in, label=\alph*.}
 \setlist[enumerate,3]{wide=.5in, label=(\arabic*)}
@@ -306,17 +305,48 @@ $endfor$
 % stretch the bottom and top margin, wrap the signature in no-orphan
 \vspace{48pt}
 
-linewidth: \convertto{in}{\the \linewidth}
+% Enclosures are governed by AR25-50 Section 4.2.  The general rule is
+% consistency.  Enclosures are only listed if they are not mentioned
+% in the body.
 
-textwidth: \convertto{in}{\the \textwidth}
+% Section 4.2.C.1 "For memorandums, capitalize the first letter in the
+% first word of a listed enclosure; see figure 4–1 for an example. For
+% letters, do not list the enclosures."
 
-parindent: \convertto{in}{\the \parindent}
+% Section 4.2.C.2 "Account for enclosures not identified in the body of the
+% correspondence by indicating the total number. List each enclosure
+% by number when you have two or more and describe each briefly (see
+% fig 4–2)."
 
+% Section 4.2.C.3 "When you have only one enclosure and it is not identified in the
+% body, account for it without a number (see fig 4–3)."
+
+% Section 4.2.C.4 "If identifying enclosures in the body, account for
+% the enclosures without a number preceding “Encl/Encls.” When only
+% some of the enclosures have been identified in the body, use “as
+% stated” (as) as noted in paragraph 4–2c(6)). A list is not required
+% (see fig 4–4)."
 \noindent
 \begin{minipage}[t]{.5\linewidth-3em}
+$if(enclosures)$
+\directlua{
+  num_encls = 0
   $for(enclosures)$
-  $enclosures$
+  num_encls = num_encls + 1
   $endfor$
+  if (num_encls == 1) then
+    tex.print("Encl\string\\\string\\")
+    tex.sprint("$enclosures$")
+  else
+    tex.sprint(num_encls .. " Encls")
+    tex.print("\string\\begin{itemize}[leftmargin=*,noitemsep,topsep=0pt]")
+    tex.print("$for(enclosures)$ \string\\item $enclosures$ $endfor$")
+    tex.print("\string\\end{itemize}")
+  end
+}
+$else$
+\hspace{3em}
+$endif$
 \end{minipage}%
 \hspace{3em}%
 \noindent
@@ -324,7 +354,5 @@ parindent: \convertto{in}{\the \parindent}
   $for(signature)$
   \Signature{$signature$}
   $endfor$
-\end{minipage}%
-
-\Gridlines
+\end{minipage}
 \end{document}
