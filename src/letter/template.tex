@@ -1,0 +1,342 @@
+% rubber: set engine lualatex
+% rubber: set program lualatex
+\documentclass[$if(fontsize)$$fontsize$,$endif$$if(lang)$$lang$,$endif$$if(papersize)$$papersize$,$endif$$for(classoption)$$classoption$$sep$,$endfor$]{$documentclass$}
+
+\usepackage{setspace}
+
+\usepackage{fixltx2e}% provides \textsubscript
+
+\usepackage{fontspec}
+\defaultfontfeatures{Ligatures=TeX,Scale=MatchLowercase}
+
+
+% Times for the body.  Everyone expects Times for the body copy.
+% However, AR 25-50 says to use Arial.
+\setmainfont{TeX Gyre Termes}
+
+% Helvetica for the letterhead.  AR 25-50 says use arial, AR 25-40
+% says Helvetica.
+\setsansfont{TeX Gyre Heros}
+
+\usepackage[top=1in,left=1.5in,right=1.5in,bottom=1in,headsep=12pt,headheight=2\baselineskip]{geometry}
+
+\usepackage{longtable,booktabs,dcolumn}
+
+% \usepackage{microtype}
+
+% Convert between units
+\usepackage{xparse}
+\ExplSyntaxOn
+\NewDocumentCommand{\convertto}{mm}
+   % #1 = em or ex (or any other unit)
+   % #2 = dimen to convert
+ {
+  \texttt{#2~=~\fp_to_decimal:n { #2/1#1 }#1}
+ }
+\ExplSyntaxOff
+
+\usepackage{graphicx}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+
+\usepackage[unicode=true]{hyperref}
+\hypersetup{breaklinks=true,
+            bookmarks=true,
+            pdfauthor={$author-meta$},
+            pdftitle={$title-meta$},
+            colorlinks=true,
+            citecolor=$if(citecolor)$$citecolor$$else$blue$endif$,
+            urlcolor=$if(urlcolor)$$urlcolor$$else$blue$endif$,
+            linkcolor=$if(linkcolor)$$linkcolor$$else$magenta$endif$,
+            pdfborder={0 0 0}}
+\urlstyle{same} % don't use monospace font for urls
+$if(links-as-notes)$
+% Make links footnotes instead of hotlinks:
+\renewcommand{\href}[2]{#2\footnote{\url{#1}}}
+$endif$
+$if(strikeout)$
+\usepackage[normalem]{ulem}
+% avoid problems with \sout in headers with hyperref:
+\pdfstringdefDisableCommands{\renewcommand{\sout}{}}
+$endif$
+\setlength{\parindent}{1.5em}
+\setlength{\parskip}{6pt plus 2pt minus 1pt}
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+$if(numbersections)$
+\setcounter{secnumdepth}{5}
+$else$
+\setcounter{secnumdepth}{0}
+$endif$
+$if(verbatim-in-note)$
+\VerbatimFootnotes% allows verbatim text in footnotes
+$endif$
+$if(lang)$
+  \usepackage{polyglossia}
+  \setmainlanguage{$mainlang$}
+$endif$
+
+$if(title)$
+\title{$title$}
+$endif$
+$if(subtitle)$
+\subtitle{$subtitle$}
+$endif$
+$if(author)$
+\author{$for(author)$$author$$sep$ \and $endfor$}
+$endif$
+$if(date)$
+\newcommand{\thedate}{$date$}
+\date{$date$}
+$endif$
+$for(header-includes)$
+$header-includes$
+$endfor$
+
+% ----------------
+% Custom additions
+
+\usepackage{ifdraft}
+
+\usepackage{luacode}
+
+\newlength{\topofletterhead}
+\setlength{\topofletterhead}{.625in}
+
+\newlength{\topofdodseal}
+\setlength{\topofdodseal}{.5in}
+
+\newlength{\lengthofdodseal}
+\setlength{\lengthofdodseal}{1in}
+
+% Customize lists to meet army regulations.
+% 1st level: 1. 2. 3. flush with left margin
+% 2nd level: a. b. c. indent 0.25 in
+% 3rd level: (1) (2) (3) indent 0.5 in
+% 4th level: (a) (b) (c) indent 0.5 in, same as 3rd level
+\usepackage{enumitem}
+\setlist[enumerate]{wide, labelwidth=\parindent}
+\setlist[enumerate,1]{wide=0in, label=\arabic*.}
+\setlist[enumerate,2]{wide=.25in, label=\alph*.}
+\setlist[enumerate,3]{wide=.5in, label=(\arabic*)}
+\setlist[enumerate,4]{wide=.5in, label=(\alph*)}
+
+\renewenvironment{itemize}{\begin{enumerate}}{%
+    \end{enumerate}\ignorespacesafterend% as suggested above
+}
+
+\usepackage{calc}
+
+% Grid lines across whole page
+\usepackage{tikz}
+\newcommand{\Gridlines}{
+  \begin{tikzpicture}[remember picture, overlay]
+    \node[anchor=south west,inner sep=0pt] at (current page.south west)
+    {\tikz \draw[line width=0.2pt,color=gray!10,step=0.125in] (0,0) grid ++(8.5in,11in);};
+    \node[anchor=south west,inner sep=0pt] at (current page.south west)
+    {\tikz \draw[line width=0.3pt,color=gray!20,step=0.25in] (0,0) grid ++(8.5in,11in);};
+    \node[anchor=south west,inner sep=0pt] at (current page.south west)
+    {\tikz \draw[line width=0.4pt,color=gray!30,step=1in] (0,0) grid ++(8.5in,11in);};
+  \end{tikzpicture}
+}
+% arbitrary fontscaling with \scalefont
+\usepackage{scalefnt}
+
+
+\usepackage{fancyhdr}
+
+% textblock works in multiples of TPHorizModule and TPVertModule.  We
+% need this to absolutely postion the letterhead and DOD seal.  Trying
+% to place them by adjusting margins is fucking impossible.
+\usepackage[absolute,overlay]{textpos}
+\setlength{\TPHorizModule}{.25in}
+\setlength{\TPVertModule}{.25in}
+
+% Positioning the letterhead.
+%
+% AR 25-40, Appendix G-3, figure G-1 (text on the side of the figure):
+%
+% "Heading is centered on the page 5/8 inch from the top trim. All
+% type is Helvetica bold. 'Department of the Army' is 10pt, all other
+% type is 8 point except 'reply to', 'attention of', which is 6
+% point. (Use of the phrase 'reply to, attention of' is optional.)
+% The DOD seal is 1 inch in diameter"
+%
+% AR 25-30, 7-7.c covers the format of the letterhead: "Include the
+% complete street address and ZIP+4 Code."  But then it says refer to
+% AR 25-40, figure G-1 and G-2.
+\newcommand{\daletterhead}[1]{%
+  \fontsize{11pt}{11pt}\selectfont%
+  \textbf{\textsc{#1}}\\%
+}
+
+\newcommand{\letterhead}[1]{%
+  \fontsize{9pt}{9pt}\selectfont%
+  \textbf{\textsc{#1}}%
+}
+
+\newcommand{\Letterhead}{
+  \vbox{
+    \sffamily
+    \daletterhead{Department of the Army}
+    $for(letterhead)$
+    \letterhead{$letterhead$}$sep$\\
+    $endfor$
+    \\
+    \vspace{\baselineskip}
+    \normalsize
+    \rmfamily
+    \thedate
+  }
+}
+
+\newcommand{\memotype}[1]{\noindent\textsc{#1}}
+
+\newcommand{\Signature}[1]{\noindent #1\\}
+
+% No line in header
+\renewcommand{\headrulewidth}{0pt}
+
+% first page header
+\fancypagestyle{firststyle} {
+  \fancyhf{}
+  \fancyhead[C]{%
+    \begin{textblock}{12}(11,2.5)
+      \Letterhead
+    \end{textblock}
+  }
+  \fancyhead[R]{%
+    \footnotesize
+    \ifdraft{\luaexec{tex.sprint(os.date("\%c"))}}{}
+  }
+}
+
+% every other page header
+\pagestyle{fancy}
+\fancyfoot[C]{\thepage}
+
+% Official DOD seals: http://www.defense.gov/multimedia/web_graphics/
+% You can convert eps to pdf with the 'epstopdf' tool available in
+% tex-live.  Example shell commands:
+%
+% tlmgr install epstopdf
+% epstopdf old_file.eps
+%
+% Position DOD seal absolutely, AR 25-40, Appendix G-3. Letterhead and
+% memorandum stationery.  1/2in from the top edge of the page and 1/2in
+% from the left edge of the page
+%
+% Regarding other logos, AR 25-30, 7-7.a states, "Do not print any
+% seals, emblems, decorative devices, distinguishing insignia,
+% slogans, office symbols, or mottos on letterhead or memorandum
+% stationery except those approved or directed by HQDA"
+\newcommand{\DODSeal}{%
+\begin{textblock}{2}(4,2)
+  \noindent
+  \includegraphics[width=\lengthofdodseal]{images/dod_seal_black}
+\end{textblock}
+}
+
+\newcommand{\Subject}{$if(subject)$$subject$$endif$}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+% Suppress overfull hbox warning for the DOD Seal
+{\hfuzz=40pt \DODSeal}
+
+\raggedright
+
+% This would be much cleaner with a working \newgeometry, but that
+% doesn't work unless you insert on the target page.  I tried
+% afterpage, but that has issues with global scope.
+%
+% Since adjusting margins on separate pages is impossible, we fake the
+% header height for the first page.  We need to see if the letterhead
+% or the DOD seal is larger and \vspace that distance before inserting
+% the title.
+
+% The length from the top of the page to the bottom of the DOD seal.
+\newlength{\bottomofdodseal}
+\setlength{\bottomofdodseal}{\lengthofdodseal + \topofdodseal}
+
+\newlength{\bottomofletterhead}
+% suppress underfull errors from this fake insert of the letterhead
+\settoheight{\bottomofletterhead}{\hbadness=\maxdimen \Letterhead}
+\setlength{\bottomofletterhead}{\bottomofletterhead + \topofletterhead}
+\setlength{\bottomofletterhead}{\maxof{\bottomofletterhead}{\bottomofdodseal}}
+
+\newlength{\fakeheadersep}
+\setlength{\fakeheadersep}{\bottomofletterhead - 1in}
+
+\vspace*{\fakeheadersep}
+
+\thispagestyle{firststyle}
+
+$if(subject)$
+\memotype{Subject}: \Subject
+\vspace{\baselineskip}
+$else$
+\vspace{2\baselineskip}
+$endif$
+
+$if(address)$
+$for(address)$
+\noindent
+$address$$sep$\\
+$endfor$
+\vspace{.5\baselineskip}
+$endif$
+
+$for(include-before)$
+$include-before$
+
+$endfor$
+
+% AR 25-50 2-3.(2).c - Margins: "Do not right justify margins."
+
+% \raggedright removes paragraph indentation so reset \parindent
+% http://tex.stackexchange.com/questions/185970/
+% \raggedright
+\setlength{\parindent}{1.5em}
+
+% Don't indent first paragraph
+\noindent
+$body$
+
+$for(include-after)$
+$include-after$
+
+$endfor$
+
+
+\hspace{.5\linewidth}
+Sincerely,
+
+% TODO: prevent signature from being an orphan, two things to try:
+% stretch the bottom and top margin, wrap the signature in no-orphan
+\vspace{48pt}
+
+\begin{minipage}[t]{.5\linewidth-3em}
+\hspace{3em}
+\end{minipage}%
+\hspace{3em}%
+\noindent
+\begin{minipage}[t]{29ex}
+  \raggedright
+  $for(signature)$
+  % AR 25-50, Figure 3-3 show hanging indent for the job title.
+  \hangindent=1em
+  \hangafter=1
+  \Signature{$signature$}
+  $endfor$
+\end{minipage}
+$if(enclosures)$
+\vspace{\baselineskip}
+Enclosure
+$endif$
+\end{document}
